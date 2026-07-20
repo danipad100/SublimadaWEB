@@ -202,6 +202,13 @@
     font-size:22px; color:rgba(36,17,24,0.5); cursor:pointer; line-height:1;
   }
   .auth-msg{font-size:13px; margin-top:10px; color:var(--teal-dark);}
+  .auth-tabs{display:flex; gap:8px; margin-bottom:18px; border-bottom:1px solid var(--line);}
+  .auth-tab{
+    background:none; border:none; padding:8px 4px 12px; font-size:14px; font-weight:600;
+    color:rgba(36,17,24,0.45); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .auth-tab.active{color:var(--pink); border-bottom-color:var(--pink);}
+  .auth-modal input + input{margin-top:0;}
 
   @media (max-width:800px){
     .hero{grid-template-columns:1fr; padding-top:40px;}
@@ -226,10 +233,28 @@
 <div id="auth-overlay" class="overlay" style="display:none;">
   <div class="auth-modal">
     <button class="modal-close" onclick="cerrarAuth()" aria-label="Cerrar">×</button>
-    <h3>Accedé a tu cuenta</h3>
-    <p class="sub">Te enviamos un link mágico a tu correo, sin contraseña</p>
-    <input type="email" id="auth-email" placeholder="tu@correo.com">
-    <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="enviarMagicLink()">Enviar acceso</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="cambiarTab('login')">Ingresar</button>
+      <button class="auth-tab" id="tab-registro" onclick="cambiarTab('registro')">Crear cuenta</button>
+    </div>
+
+    <div id="form-login">
+      <p class="sub">Ingresá con tu correo y contraseña</p>
+      <input type="email" id="login-email" placeholder="tu@correo.com">
+      <input type="password" id="login-pass" placeholder="Contraseña" style="margin-top:10px;">
+      <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="iniciarSesion()">Ingresar</button>
+    </div>
+
+    <div id="form-registro" style="display:none;">
+      <p class="sub">Creá tu cuenta para comprar y ver tus accesos</p>
+      <input type="text" id="reg-nombre" placeholder="Nombre">
+      <input type="text" id="reg-apellido" placeholder="Apellido" style="margin-top:10px;">
+      <input type="email" id="reg-email" placeholder="Correo electrónico" style="margin-top:10px;">
+      <input type="tel" id="reg-telefono" placeholder="Teléfono" style="margin-top:10px;">
+      <input type="password" id="reg-pass" placeholder="Contraseña" style="margin-top:10px;">
+      <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="registrarse()">Crear cuenta</button>
+    </div>
+
     <p id="auth-msg" class="auth-msg"></p>
   </div>
 </div>
@@ -322,16 +347,58 @@
   }
 
   // --- Auth (magic link) ---
-  function abrirAuth(){ document.getElementById('auth-overlay').style.display = 'flex'; }
+  function abrirAuth(){ document.getElementById('auth-overlay').style.display = 'flex'; document.getElementById('auth-msg').textContent=''; }
   function cerrarAuth(){ document.getElementById('auth-overlay').style.display = 'none'; }
 
-  async function enviarMagicLink(){
-    const email = document.getElementById('auth-email').value.trim();
+  function cambiarTab(tab){
+    document.getElementById('tab-login').classList.toggle('active', tab==='login');
+    document.getElementById('tab-registro').classList.toggle('active', tab==='registro');
+    document.getElementById('form-login').style.display = tab==='login' ? 'block' : 'none';
+    document.getElementById('form-registro').style.display = tab==='registro' ? 'block' : 'none';
+    document.getElementById('auth-msg').textContent = '';
+  }
+
+  async function registrarse(){
+    const nombre = document.getElementById('reg-nombre').value.trim();
+    const apellido = document.getElementById('reg-apellido').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const telefono = document.getElementById('reg-telefono').value.trim();
+    const password = document.getElementById('reg-pass').value;
     const msg = document.getElementById('auth-msg');
-    if (!email){ msg.textContent = 'Ingresá un correo válido.'; return; }
-    msg.textContent = 'Enviando…';
-    const { error } = await db.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
-    msg.textContent = error ? 'Hubo un problema, intentá de nuevo.' : 'Revisá tu correo, te enviamos el acceso.';
+
+    if (!nombre || !email || !password){ msg.textContent = 'Completá al menos nombre, correo y contraseña.'; return; }
+    if (password.length < 6){ msg.textContent = 'La contraseña debe tener al menos 6 caracteres.'; return; }
+
+    msg.textContent = 'Creando cuenta…';
+    const { data, error } = await db.auth.signUp({ email, password, options: { data: { nombre, apellido, telefono } } });
+    if (error){ msg.textContent = error.message; return; }
+
+    if (data.user){
+      await db.from('clientes').insert({ id: data.user.id, nombre, apellido, email, telefono, origen: 'nuevo' });
+    }
+
+    if (data.session){
+      msg.textContent = 'Cuenta creada. ¡Ya estás dentro!';
+      setTimeout(cerrarAuth, 900);
+    } else {
+      msg.textContent = 'Cuenta creada. Revisá tu correo para confirmarla antes de ingresar.';
+    }
+  }
+
+  async function iniciarSesion(){
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-pass').value;
+    const msg = document.getElementById('auth-msg');
+    if (!email || !password){ msg.textContent = 'Ingresá correo y contraseña.'; return; }
+    msg.textContent = 'Ingresando…';
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error){ msg.textContent = 'Correo o contraseña incorrectos.'; return; }
+    msg.textContent = '¡Listo!';
+    setTimeout(cerrarAuth, 500);
+  }
+
+  async function cerrarSesion(){
+    await db.auth.signOut();
   }
 
   db.auth.onAuthStateChange((_event, session) => {
@@ -339,9 +406,10 @@
     const cuentaBtn = document.getElementById('btn-cuenta');
     if (session){
       navBtn.textContent = 'Mis compras';
-      cuentaBtn.textContent = session.user.email.split('@')[0];
-      cuentaBtn.onclick = null;
+      cuentaBtn.textContent = 'Salir (' + session.user.email.split('@')[0] + ')';
+      cuentaBtn.onclick = cerrarSesion;
     } else {
+      navBtn.textContent = 'Mis compras';
       cuentaBtn.textContent = 'Ingresar';
       cuentaBtn.onclick = abrirAuth;
     }
