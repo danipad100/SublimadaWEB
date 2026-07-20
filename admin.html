@@ -14,57 +14,146 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   body{font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);}
   h1,h2{font-family:'Bricolage Grotesque',sans-serif; font-weight:800; letter-spacing:-0.02em;}
-  header{
-    display:flex; align-items:center; justify-content:space-between; padding:18px 5vw;
-    background:#fff; border-bottom:3px solid var(--pink);
-  }
-  .logo{color:var(--pink); font-size:20px; font-weight:800; font-family:'Bricolage Grotesque';}
-  main{padding:32px 5vw; max-width:1000px; margin:0 auto;}
-  .login-box{max-width:340px; margin:80px auto; background:#fff; border-radius:16px; padding:28px; border:1px solid var(--line);}
+  a{text-decoration:none; color:inherit;}
+
+  .login-box{max-width:340px; margin:100px auto; background:#fff; border-radius:16px; padding:28px; border:1px solid var(--line);}
   .login-box input{width:100%; padding:11px 14px; border-radius:10px; border:1px solid var(--line); font-size:14px; margin-top:10px;}
-  .btn{
-    background:var(--pink); color:#fff; border:none; font-weight:600; font-size:14px;
-    padding:11px 20px; border-radius:100px; cursor:pointer; width:100%; margin-top:14px;
+  .msg{font-size:13px; margin-top:10px; color:var(--teal-dark);}
+
+  .layout{display:none; min-height:100vh; grid-template-columns:230px 1fr;}
+  .sidebar{background:#fff; border-right:1px solid var(--line); padding:22px 0;}
+  .sidebar .logo{font-size:19px; font-weight:800; font-family:'Bricolage Grotesque'; color:var(--pink); padding:0 22px 20px;}
+  .sidebar nav a{
+    display:block; padding:11px 22px; font-size:14px; font-weight:600; color:rgba(36,17,24,0.6);
+    border-left:3px solid transparent; cursor:pointer;
   }
-  .btn-small{width:auto; padding:8px 16px; font-size:13px;}
-  .btn-secondary{background:var(--teal-dark);}
-  table{width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; margin-top:20px;}
+  .sidebar nav a.active{color:var(--berry); border-left-color:var(--pink); background:#FFF3F8;}
+  .sidebar .salir{margin:20px 22px 0; font-size:13px; color:var(--teal-dark); cursor:pointer;}
+
+  .content{padding:32px 40px; max-width:1100px;}
+  .content h1{font-size:24px; margin-bottom:4px;}
+  .content .sub{color:rgba(36,17,24,0.6); font-size:14px; margin-bottom:22px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .btn{
+    background:var(--pink); color:#fff; border:none; font-weight:600; font-size:13px;
+    padding:9px 16px; border-radius:100px; cursor:pointer;
+  }
+  .btn-outline{background:none; border:1px solid var(--line); color:var(--ink);}
+  .btn-danger{background:#F09595; color:#501313;}
+
+  table{width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden;}
   th,td{text-align:left; padding:12px 14px; font-size:13px; border-bottom:1px solid var(--line);}
   th{background:#FFF3F8; color:var(--berry-dark); font-weight:600; text-transform:uppercase; font-size:11px; letter-spacing:0.04em;}
   .estado{padding:4px 10px; border-radius:100px; font-size:11px; font-weight:600;}
   .estado-pendiente{background:#FAEEDA; color:#854F0B;}
   .estado-pagado{background:#E1F5EE; color:#085041;}
   .estado-entregado{background:#CDF3F1; color:var(--teal-dark);}
-  .msg{font-size:13px; margin-top:10px; color:var(--teal-dark);}
+  .tipo-tag{padding:3px 9px; border-radius:100px; font-size:11px; font-weight:600;}
+  .tipo-curso{background:#FBEAF0; color:#993556;}
+  .tipo-digital{background:#E1F5EE; color:#085041;}
+  .tipo-fisico{background:#F4E1E9; color:var(--berry-dark);}
   .empty{color:rgba(36,17,24,0.5); font-size:14px; padding:20px 0;}
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .inactivo{opacity:0.45;}
+
+  .overlay{position:fixed; inset:0; background:rgba(36,17,24,0.45); display:none; align-items:center; justify-content:center; z-index:100; padding:20px;}
+  .modal{background:#fff; border-radius:16px; padding:26px; width:100%; max-width:420px;}
+  .modal h3{font-size:17px; margin-bottom:16px;}
+  .modal label{font-size:12px; font-weight:600; color:rgba(36,17,24,0.6); display:block; margin-top:12px; margin-bottom:4px;}
+  .modal input, .modal select, .modal textarea{
+    width:100%; padding:9px 12px; border-radius:8px; border:1px solid var(--line); font-size:14px; font-family:'Inter';
+  }
+  .modal textarea{resize:vertical; min-height:60px;}
+  .modal-actions{display:flex; gap:10px; margin-top:20px;}
 </style>
 </head>
 <body>
-
-<header>
-  <span class="logo">Sublimada · Admin</span>
-  <button class="btn btn-small btn-secondary" id="btn-salir" style="display:none;" onclick="salir()">Cerrar sesión</button>
-</header>
 
 <div class="login-box" id="login-box">
   <h2 style="font-size:18px; margin-bottom:16px;">Acceso administrativo</h2>
   <input type="email" id="admin-email" placeholder="Correo">
   <input type="password" id="admin-pass" placeholder="Contraseña">
-  <button class="btn" onclick="entrar()">Ingresar</button>
+  <button class="btn" style="width:100%; margin-top:14px;" onclick="entrar()">Ingresar</button>
   <p class="msg" id="login-msg"></p>
 </div>
 
-<main id="panel" style="display:none;">
-  <h1 style="font-size:24px; margin-bottom:6px;">Ventas</h1>
-  <p style="color:rgba(36,17,24,0.6); font-size:14px;">Confirmá el pago y otorgá el acceso al cliente.</p>
-  <table>
-    <thead>
-      <tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Monto</th><th>Método</th><th>Estado</th><th></th></tr>
-    </thead>
-    <tbody id="tabla-ordenes"></tbody>
-  </table>
-  <p class="empty" id="empty-msg" style="display:none;">Todavía no hay ventas registradas.</p>
-</main>
+<div class="layout" id="layout">
+  <aside class="sidebar">
+    <div class="logo">Sublimada</div>
+    <nav>
+      <a data-view="ventas" class="active" onclick="mostrarVista('ventas')">Ventas</a>
+      <a data-view="productos" onclick="mostrarVista('productos')">Productos</a>
+      <a data-view="clientes" onclick="mostrarVista('clientes')">Clientes</a>
+    </nav>
+    <div class="salir" onclick="salir()">Cerrar sesión</div>
+  </aside>
+
+  <main class="content">
+    <div class="view active" id="view-ventas">
+      <h1>Ventas</h1>
+      <p class="sub">Confirmá el pago y otorgá el acceso al cliente.</p>
+      <table>
+        <thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Monto</th><th>Método</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="tabla-ordenes"></tbody>
+      </table>
+      <p class="empty" id="empty-ordenes" style="display:none;">Todavía no hay ventas registradas.</p>
+    </div>
+
+    <div class="view" id="view-productos">
+      <div class="toolbar">
+        <div>
+          <h1 style="margin-bottom:0;">Productos</h1>
+          <p class="sub" style="margin-bottom:0;">Cursos, digitales y físicos del catálogo.</p>
+        </div>
+        <button class="btn" onclick="abrirModalProducto()">+ Nuevo producto</button>
+      </div>
+      <table>
+        <thead><tr><th>Tipo</th><th>Nombre</th><th>Precio</th><th>SKU</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="tabla-productos"></tbody>
+      </table>
+      <p class="empty" id="empty-productos" style="display:none;">Todavía no hay productos.</p>
+    </div>
+
+    <div class="view" id="view-clientes">
+      <h1>Clientes</h1>
+      <p class="sub">Personas registradas en el sitio.</p>
+      <table>
+        <thead><tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Origen</th><th>Registrado</th></tr></thead>
+        <tbody id="tabla-clientes"></tbody>
+      </table>
+      <p class="empty" id="empty-clientes" style="display:none;">Todavía no hay clientes registrados.</p>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-titulo">Nuevo producto</h3>
+    <input type="hidden" id="prod-id">
+    <label>Tipo</label>
+    <select id="prod-tipo">
+      <option value="curso">Curso</option>
+      <option value="digital">Digital</option>
+      <option value="fisico">Físico</option>
+    </select>
+    <label>Nombre</label>
+    <input type="text" id="prod-nombre" placeholder="Nombre del producto">
+    <label>Descripción</label>
+    <textarea id="prod-descripcion" placeholder="Descripción corta"></textarea>
+    <label>Precio (USD)</label>
+    <input type="number" id="prod-precio" step="0.01" placeholder="0.00">
+    <label>SKU (opcional)</label>
+    <input type="text" id="prod-sku" placeholder="CUR-004">
+    <label><input type="checkbox" id="prod-activo" checked style="width:auto; margin-right:6px;">Visible en el catálogo</label>
+    <div class="modal-actions">
+      <button class="btn" style="flex:1;" onclick="guardarProducto()">Guardar</button>
+      <button class="btn btn-outline" style="flex:1;" onclick="cerrarModalProducto()">Cancelar</button>
+    </div>
+    <p class="msg" id="modal-msg"></p>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -87,55 +176,151 @@
       return;
     }
     document.getElementById('login-box').style.display = 'none';
-    document.getElementById('panel').style.display = 'block';
-    document.getElementById('btn-salir').style.display = 'inline-block';
+    document.getElementById('layout').style.display = 'grid';
     cargarOrdenes();
+    cargarProductos();
+    cargarClientes();
   }
 
   async function salir(){
     await db.auth.signOut();
     document.getElementById('login-box').style.display = 'block';
-    document.getElementById('panel').style.display = 'none';
-    document.getElementById('btn-salir').style.display = 'none';
+    document.getElementById('layout').style.display = 'none';
   }
 
-  function filaHTML(o){
+  function mostrarVista(nombre){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + nombre).classList.add('active');
+    document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.toggle('active', a.dataset.view === nombre));
+  }
+
+  function filaOrdenHTML(o){
     const fecha = new Date(o.created_at).toLocaleDateString('es-VE', { day:'2-digit', month:'short' });
     const cliente = o.clientes ? `${o.clientes.nombre || ''} ${o.clientes.apellido || ''}`.trim() : '—';
     const producto = o.productos ? o.productos.nombre : '—';
     const puedeConfirmar = o.estado === 'pendiente';
     return `<tr>
-      <td>${fecha}</td>
-      <td>${cliente}</td>
-      <td>${producto}</td>
-      <td>USD ${Number(o.monto).toFixed(0)}</td>
-      <td>${o.metodo_pago}</td>
+      <td>${fecha}</td><td>${cliente}</td><td>${producto}</td>
+      <td>USD ${Number(o.monto).toFixed(0)}</td><td>${o.metodo_pago}</td>
       <td><span class="estado estado-${o.estado}">${o.estado}</span></td>
-      <td>${puedeConfirmar ? `<button class="btn btn-small" onclick="confirmar('${o.id}','${o.cliente_id}','${o.producto_id}')">Confirmar</button>` : ''}</td>
+      <td>${puedeConfirmar ? `<button class="btn" onclick="confirmarOrden('${o.id}','${o.cliente_id}','${o.producto_id}')">Confirmar</button>` : ''}</td>
     </tr>`;
   }
 
   async function cargarOrdenes(){
-    const { data, error } = await db
-      .from('ordenes')
-      .select('*, clientes(nombre,apellido,email), productos(nombre)')
-      .order('created_at', { ascending: false });
-
+    const { data, error } = await db.from('ordenes').select('*, clientes(nombre,apellido), productos(nombre)').order('created_at', { ascending:false });
     const tbody = document.getElementById('tabla-ordenes');
-    const empty = document.getElementById('empty-msg');
-    if (error || !data || data.length === 0){
-      tbody.innerHTML = '';
-      empty.style.display = 'block';
-      return;
-    }
+    const empty = document.getElementById('empty-ordenes');
+    if (error || !data || data.length === 0){ tbody.innerHTML=''; empty.style.display='block'; return; }
     empty.style.display = 'none';
-    tbody.innerHTML = data.map(filaHTML).join('');
+    tbody.innerHTML = data.map(filaOrdenHTML).join('');
   }
 
-  async function confirmar(ordenId, clienteId, productoId){
+  async function confirmarOrden(ordenId, clienteId, productoId){
     await db.from('ordenes').update({ estado: 'pagado' }).eq('id', ordenId);
     await db.from('accesos').insert({ cliente_id: clienteId, producto_id: productoId, orden_id: ordenId });
     cargarOrdenes();
+  }
+
+  const TIPO_LABEL = { curso:'Curso', digital:'Digital', fisico:'Físico' };
+
+  function filaProductoHTML(p){
+    return `<tr class="${p.activo ? '' : 'inactivo'}">
+      <td><span class="tipo-tag tipo-${p.tipo}">${TIPO_LABEL[p.tipo]}</span></td>
+      <td>${p.nombre}</td>
+      <td>USD ${Number(p.precio).toFixed(0)}</td>
+      <td>${p.sku || '—'}</td>
+      <td>${p.activo ? 'Visible' : 'Oculto'}</td>
+      <td>
+        <button class="btn btn-outline" onclick='editarProducto(${JSON.stringify(p)})'>Editar</button>
+        <button class="btn btn-danger" onclick="eliminarProducto('${p.id}')">Eliminar</button>
+      </td>
+    </tr>`;
+  }
+
+  async function cargarProductos(){
+    const { data, error } = await db.from('productos').select('*').order('created_at', { ascending:false });
+    const tbody = document.getElementById('tabla-productos');
+    const empty = document.getElementById('empty-productos');
+    if (error || !data || data.length === 0){ tbody.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display = 'none';
+    tbody.innerHTML = data.map(filaProductoHTML).join('');
+  }
+
+  function abrirModalProducto(){
+    document.getElementById('modal-titulo').textContent = 'Nuevo producto';
+    document.getElementById('prod-id').value = '';
+    document.getElementById('prod-tipo').value = 'curso';
+    document.getElementById('prod-nombre').value = '';
+    document.getElementById('prod-descripcion').value = '';
+    document.getElementById('prod-precio').value = '';
+    document.getElementById('prod-sku').value = '';
+    document.getElementById('prod-activo').checked = true;
+    document.getElementById('modal-msg').textContent = '';
+    document.getElementById('modal-overlay').style.display = 'flex';
+  }
+
+  function editarProducto(p){
+    document.getElementById('modal-titulo').textContent = 'Editar producto';
+    document.getElementById('prod-id').value = p.id;
+    document.getElementById('prod-tipo').value = p.tipo;
+    document.getElementById('prod-nombre').value = p.nombre;
+    document.getElementById('prod-descripcion').value = p.descripcion || '';
+    document.getElementById('prod-precio').value = p.precio;
+    document.getElementById('prod-sku').value = p.sku || '';
+    document.getElementById('prod-activo').checked = p.activo;
+    document.getElementById('modal-msg').textContent = '';
+    document.getElementById('modal-overlay').style.display = 'flex';
+  }
+
+  function cerrarModalProducto(){ document.getElementById('modal-overlay').style.display = 'none'; }
+
+  async function guardarProducto(){
+    const id = document.getElementById('prod-id').value;
+    const payload = {
+      tipo: document.getElementById('prod-tipo').value,
+      nombre: document.getElementById('prod-nombre').value.trim(),
+      descripcion: document.getElementById('prod-descripcion').value.trim(),
+      precio: parseFloat(document.getElementById('prod-precio').value),
+      sku: document.getElementById('prod-sku').value.trim() || null,
+      activo: document.getElementById('prod-activo').checked
+    };
+    const msg = document.getElementById('modal-msg');
+    if (!payload.nombre || isNaN(payload.precio)){ msg.textContent = 'Completá nombre y precio.'; return; }
+
+    const { error } = id
+      ? await db.from('productos').update(payload).eq('id', id)
+      : await db.from('productos').insert(payload);
+
+    if (error){ msg.textContent = 'Error al guardar: ' + error.message; return; }
+    cerrarModalProducto();
+    cargarProductos();
+  }
+
+  async function eliminarProducto(id){
+    if (!confirm('¿Eliminar este producto? Esta acción no se puede deshacer.')) return;
+    await db.from('productos').delete().eq('id', id);
+    cargarProductos();
+  }
+
+  function filaClienteHTML(c){
+    const fecha = new Date(c.created_at).toLocaleDateString('es-VE', { day:'2-digit', month:'short', year:'numeric' });
+    return `<tr>
+      <td>${c.nombre || ''} ${c.apellido || ''}</td>
+      <td>${c.email}</td>
+      <td>${c.telefono || '—'}</td>
+      <td>${c.origen}</td>
+      <td>${fecha}</td>
+    </tr>`;
+  }
+
+  async function cargarClientes(){
+    const { data, error } = await db.from('clientes').select('*').order('created_at', { ascending:false });
+    const tbody = document.getElementById('tabla-clientes');
+    const empty = document.getElementById('empty-clientes');
+    if (error || !data || data.length === 0){ tbody.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display = 'none';
+    tbody.innerHTML = data.map(filaClienteHTML).join('');
   }
 </script>
 </body>
