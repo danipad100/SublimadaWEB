@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sublimada — Cursos, digitales y productos de sublimación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --berry:#AB4871;
+    --berry-dark:#6E2C48;
+    --pink:#E87EB0;
+    --teal:#00B5BC;
+    --teal-dark:#087478;
+    --pink-light:#FFD2DF;
+    --berry-soft:#DE9CB8;
+    --ink:#241118;
+    --paper:#FAF6F5;
+    --paper-2:#FFFFFF;
+    --line:rgba(36,17,24,0.1);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+  }
+  h1,h2,h3,.display{
+    font-family:'Bricolage Grotesque', sans-serif;
+    font-weight:800;
+    letter-spacing:-0.02em;
+  }
+  a{color:inherit; text-decoration:none;}
+  img{display:block; max-width:100%;}
+
+  /* header */
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 6vw;
+    background:var(--paper-2);
+    border-bottom:3px solid var(--pink);
+    position:sticky; top:0; z-index:50;
+  }
+  .logo{font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; color:var(--pink);}
+  nav{display:flex; gap:28px; font-size:14px; font-weight:600;}
+  nav a{opacity:0.75; transition:opacity .15s;}
+  nav a:hover{opacity:1;}
+  .cart-btn{
+    background:var(--berry); color:#fff; border:none;
+    padding:10px 18px; border-radius:100px; font-weight:600; font-size:14px;
+    cursor:pointer;
+  }
+
+  /* hero */
+  .hero{
+    padding:90px 6vw 70px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:40px;
+    align-items:center;
+    background:var(--pink-light);
+    overflow:hidden;
+    position:relative;
+  }
+  .hero-copy .eyebrow{
+    font-size:13px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--berry-dark); margin-bottom:16px; display:block;
+  }
+  .hero-copy h1{
+    font-size:clamp(34px,4.2vw,58px);
+    line-height:1.02;
+    color:var(--ink);
+    margin-bottom:18px;
+  }
+  .hero-copy h1 em{font-style:normal; color:var(--berry);}
+  .hero-copy p{
+    font-size:17px; max-width:420px; color:rgba(36,17,24,0.75); margin-bottom:28px;
+  }
+  .hero-cta{display:flex; gap:14px;}
+  .btn-primary{
+    background:var(--pink); color:#fff; border:none; font-weight:600; font-size:15px;
+    padding:14px 26px; border-radius:100px; cursor:pointer; transition:transform .15s;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{
+    background:transparent; color:var(--berry-dark); border:1.5px solid var(--berry);
+    font-weight:600; font-size:15px; padding:14px 26px; border-radius:100px; cursor:pointer;
+  }
+
+  /* transfer visual */
+  .transfer{
+    position:relative; height:340px; border-radius:20px; overflow:hidden;
+    display:flex;
+  }
+  .transfer .blank, .transfer .printed{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    font-family:'Bricolage Grotesque'; font-weight:800; font-size:15px;
+  }
+  .transfer .blank{
+    background:#fff; color:rgba(36,17,24,0.3); border-right:2px dashed var(--berry);
+  }
+  .transfer .printed{
+    background:var(--teal);
+    color:#fff;
+  }
+  .transfer .mug{
+    width:90px; height:110px; border-radius:8px 8px 20px 20px; position:relative;
+  }
+  .transfer .blank .mug{background:#eee; border:2px solid #ddd;}
+  .transfer .printed .mug{background:rgba(255,255,255,0.92);}
+  .transfer .arrow{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:46px; height:46px; border-radius:50%; background:var(--berry); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:20px; z-index:5;
+  }
+
+  /* section framing */
+  .section{padding:70px 6vw;}
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between; margin-bottom:32px;
+    flex-wrap:wrap; gap:10px;
+  }
+  .section-head h2{font-size:28px;}
+  .section-head .tag{
+    font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    padding:6px 14px; border-radius:100px;
+  }
+  .section-cursos{background:#FFF3F8;}
+  .section-cursos .tag{background:var(--pink); color:#fff;}
+  .section-digital{background:#EAFAFA;}
+  .section-digital .tag{background:#CDF3F1; color:var(--teal-dark);}
+  .section-fisico{background:#FBEFF2;}
+  .section-fisico .tag{background:#F4E1E9; color:var(--berry-dark);}
+
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:22px;
+  }
+  .card{
+    background:var(--paper-2); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; transition:transform .2s, box-shadow .2s; position:relative;
+  }
+  .card:hover{transform:translateY(-4px); box-shadow:0 14px 30px rgba(36,17,24,0.1);}
+  .card-media{
+    height:150px; position:relative; overflow:hidden;
+  }
+  .card-media::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.5) 50%, transparent 60%);
+    transform:translateX(-120%);
+    transition:transform .6s ease;
+  }
+  .card:hover .card-media::after{transform:translateX(120%);}
+  .media-cursos{background:var(--pink);}
+  .media-digital{background:var(--teal);}
+  .media-fisico{background:var(--berry-soft);}
+  .card-media span{
+    position:absolute; bottom:12px; left:14px; color:#fff; font-size:12px; font-weight:600;
+    background:rgba(0,0,0,0.2); padding:4px 10px; border-radius:100px;
+  }
+  .card-body{padding:16px 16px 18px;}
+  .card-body h3{font-size:16px; font-weight:600; font-family:'Inter'; margin-bottom:4px;}
+  .card-body .sub{font-size:13px; color:rgba(36,17,24,0.6); margin-bottom:14px;}
+  .card-foot{display:flex; align-items:center; justify-content:space-between;}
+  .price{font-family:'Bricolage Grotesque'; font-weight:800; font-size:18px;}
+  .buy{
+    color:#fff; border:none; font-size:13px; font-weight:600;
+    padding:8px 14px; border-radius:100px; cursor:pointer;
+  }
+  .section-cursos .buy{background:var(--pink);}
+  .section-digital .buy{background:var(--teal-dark);}
+  .section-fisico .buy{background:var(--berry-soft); color:var(--berry-dark);}
+  .price-cursos{color:var(--pink);}
+  .price-digital{color:var(--teal-dark);}
+  .price-fisico{color:var(--berry-dark);}
+
+  footer{
+    padding:40px 6vw; background:var(--pink); color:rgba(255,255,255,0.95);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; font-size:13px;
+  }
+  footer .logo{color:#fff;}
+
+  .loading{color:rgba(36,17,24,0.5); font-size:14px;}
+  .overlay{
+    position:fixed; inset:0; background:rgba(36,17,24,0.45);
+    display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .auth-modal{
+    background:#fff; border-radius:16px; padding:28px; width:100%; max-width:360px; position:relative;
+  }
+  .auth-modal h3{font-size:18px; margin-bottom:6px;}
+  .auth-modal .sub{font-size:13px; color:rgba(36,17,24,0.6); margin-bottom:18px;}
+  .auth-modal input{
+    width:100%; padding:11px 14px; border-radius:10px; border:1px solid var(--line);
+    font-size:14px; font-family:'Inter';
+  }
+  .modal-close{
+    position:absolute; top:14px; right:16px; background:none; border:none;
+    font-size:22px; color:rgba(36,17,24,0.5); cursor:pointer; line-height:1;
+  }
+  .auth-msg{font-size:13px; margin-top:10px; color:var(--teal-dark);}
+
+  @media (max-width:800px){
+    .hero{grid-template-columns:1fr; padding-top:40px;}
+    header{padding:16px 5vw;}
+    nav{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Sublimada</span>
+  <nav>
+    <a href="#cursos">Cursos</a>
+    <a href="#digital">Digitales</a>
+    <a href="#fisico">Físicos</a>
+    <a href="#" id="nav-cuenta" onclick="abrirAuth();return false;">Mis compras</a>
+  </nav>
+  <button class="cart-btn" id="btn-cuenta" onclick="abrirAuth()">Ingresar</button>
+</header>
+
+<div id="auth-overlay" class="overlay" style="display:none;">
+  <div class="auth-modal">
+    <button class="modal-close" onclick="cerrarAuth()" aria-label="Cerrar">×</button>
+    <h3>Accedé a tu cuenta</h3>
+    <p class="sub">Te enviamos un link mágico a tu correo, sin contraseña</p>
+    <input type="email" id="auth-email" placeholder="tu@correo.com">
+    <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="enviarMagicLink()">Enviar acceso</button>
+    <p id="auth-msg" class="auth-msg"></p>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">Sublimación · cursos y productos</span>
+    <h1>De la idea al objeto,<br><em>en un solo lugar.</em></h1>
+    <p>Aprendé a sublimar con cursos paso a paso, descargá plantillas listas para imprimir, o pedí tu producto ya personalizado.</p>
+    <div class="hero-cta">
+      <button class="btn-primary">Ver catálogo</button>
+      <button class="btn-ghost">Cómo funciona</button>
+    </div>
+  </div>
+  <div class="transfer">
+    <div class="blank"><div class="mug"></div></div>
+    <div class="printed"><div class="mug"></div></div>
+    <div class="arrow">→</div>
+  </div>
+</section>
+
+<section class="section section-cursos" id="cursos">
+  <div class="section-head">
+    <h2>Cursos online</h2>
+    <span class="tag">Acceso inmediato</span>
+  </div>
+  <div class="grid" id="grid-curso"><p class="loading">Cargando cursos…</p></div>
+</section>
+
+<section class="section section-digital" id="digital">
+  <div class="section-head">
+    <h2>Productos digitales</h2>
+    <span class="tag">Descarga al instante</span>
+  </div>
+  <div class="grid" id="grid-digital"><p class="loading">Cargando productos digitales…</p></div>
+</section>
+
+<section class="section section-fisico" id="fisico">
+  <div class="section-head">
+    <h2>Productos físicos</h2>
+    <span class="tag">Envío en Venezuela</span>
+  </div>
+  <div class="grid" id="grid-fisico"><p class="loading">Cargando productos físicos…</p></div>
+</section>
+
+<footer>
+  <span class="logo display">Sublimada</span>
+  <span>© 2026 Sublimada · Hecho en Venezuela</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://xksollhvloypspknalwq.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhrc29sbGh2bG95cHNwa25hbHdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NzM5ODAsImV4cCI6MjEwMDE0OTk4MH0.fZ28CxtE3hlKl3w167kHmCIbZIty5eiJtd1cVdbriBk';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const TAG_TEXT = { curso: 'Curso online', digital: 'Descarga digital', fisico: 'Producto físico' };
+  const MEDIA_CLASS = { curso: 'media-cursos', digital: 'media-digital', fisico: 'media-fisico' };
+  const PRICE_CLASS = { curso: 'price-cursos', digital: 'price-digital', fisico: 'price-fisico' };
+
+  function cardHTML(p){
+    return `<div class="card">
+      <div class="card-media ${MEDIA_CLASS[p.tipo]}"><span>${TAG_TEXT[p.tipo]}</span></div>
+      <div class="card-body">
+        <h3>${p.nombre}</h3>
+        <p class="sub">${p.descripcion || ''}</p>
+        <div class="card-foot">
+          <span class="price ${PRICE_CLASS[p.tipo]}">USD ${Number(p.precio).toFixed(0)}</span>
+          <button class="buy" onclick="comprar('${p.id}','${p.nombre.replace(/'/g,"")}')">Comprar</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  async function cargarCatalogo(){
+    const { data, error } = await db.from('productos').select('*').eq('activo', true).order('created_at');
+    if (error){
+      document.getElementById('grid-curso').innerHTML = '<p class="loading">No se pudo cargar el catálogo.</p>';
+      return;
+    }
+    const porTipo = { curso: [], digital: [], fisico: [] };
+    data.forEach(p => porTipo[p.tipo]?.push(p));
+
+    for (const tipo of ['curso','digital','fisico']){
+      const grid = document.getElementById(`grid-${tipo}`);
+      grid.innerHTML = porTipo[tipo].length
+        ? porTipo[tipo].map(cardHTML).join('')
+        : '<p class="loading">Todavía no hay productos en esta categoría.</p>';
+    }
+  }
+
+  // --- Auth (magic link) ---
+  function abrirAuth(){ document.getElementById('auth-overlay').style.display = 'flex'; }
+  function cerrarAuth(){ document.getElementById('auth-overlay').style.display = 'none'; }
+
+  async function enviarMagicLink(){
+    const email = document.getElementById('auth-email').value.trim();
+    const msg = document.getElementById('auth-msg');
+    if (!email){ msg.textContent = 'Ingresá un correo válido.'; return; }
+    msg.textContent = 'Enviando…';
+    const { error } = await db.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+    msg.textContent = error ? 'Hubo un problema, intentá de nuevo.' : 'Revisá tu correo, te enviamos el acceso.';
+  }
+
+  db.auth.onAuthStateChange((_event, session) => {
+    const navBtn = document.getElementById('nav-cuenta');
+    const cuentaBtn = document.getElementById('btn-cuenta');
+    if (session){
+      navBtn.textContent = 'Mis compras';
+      cuentaBtn.textContent = session.user.email.split('@')[0];
+      cuentaBtn.onclick = null;
+    } else {
+      cuentaBtn.textContent = 'Ingresar';
+      cuentaBtn.onclick = abrirAuth;
+    }
+  });
+
+  async function comprar(productoId, nombre){
+    const { data: { session } } = await db.auth.getSession();
+    if (!session){
+      abrirAuth();
+      return;
+    }
+    alert(`Próximo paso: checkout de pago para "${nombre}". El registro de la orden ya se puede crear en Supabase para este cliente.`);
+  }
+
+  cargarCatalogo();
+</script>
+</body>
+</html>
