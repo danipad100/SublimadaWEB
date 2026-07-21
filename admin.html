@@ -67,6 +67,27 @@
   }
   .modal textarea{resize:vertical; min-height:60px;}
   .modal-actions{display:flex; gap:10px; margin-top:20px;}
+
+  .stats-row{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px;}
+  .stat-card{background:#fff; border-radius:12px; padding:16px 18px; border:1px solid var(--line);}
+  .stat-label{font-size:12px; color:rgba(36,17,24,0.55); font-weight:600; margin-bottom:6px;}
+  .stat-value{font-size:26px; font-weight:800; font-family:'Bricolage Grotesque'; color:var(--berry-dark);}
+  .chart-box{background:#fff; border-radius:12px; border:1px solid var(--line); padding:20px;}
+  .chart-bars{display:flex; align-items:flex-end; gap:10px; height:160px;}
+  .chart-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .chart-bar{width:100%; max-width:34px; background:var(--pink); border-radius:6px 6px 0 0; min-height:3px;}
+  .chart-day{font-size:11px; color:rgba(36,17,24,0.55); margin-top:6px;}
+
+  .clase-item{
+    display:flex; justify-content:space-between; align-items:center; padding:10px 0;
+    border-bottom:1px solid var(--line); font-size:13px;
+  }
+  .clase-item .num{color:rgba(36,17,24,0.4); margin-right:8px;}
+  .modulo-block{background:#FFF3F8; border-radius:10px; padding:12px 14px; margin-bottom:12px;}
+  .modulo-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+  .modulo-head h4{font-size:14px; color:var(--berry-dark);}
+  .modulo-clases .clase-item{background:#fff; border-radius:8px; padding:8px 10px; border-bottom:none; margin-bottom:6px;}
+  .btn-tiny{padding:5px 10px; font-size:11px;}
 </style>
 </head>
 <body>
@@ -83,7 +104,8 @@
   <aside class="sidebar">
     <div class="logo">Sublimada</div>
     <nav>
-      <a data-view="ventas" class="active" onclick="mostrarVista('ventas')">Ventas</a>
+      <a data-view="inicio" class="active" onclick="mostrarVista('inicio')">Inicio</a>
+      <a data-view="ventas" onclick="mostrarVista('ventas')">Ventas</a>
       <a data-view="productos" onclick="mostrarVista('productos')">Productos</a>
       <a data-view="clientes" onclick="mostrarVista('clientes')">Clientes</a>
     </nav>
@@ -91,7 +113,29 @@
   </aside>
 
   <main class="content">
-    <div class="view active" id="view-ventas">
+    <div class="view active" id="view-inicio">
+      <h1>Inicio</h1>
+      <p class="sub">Resumen de los últimos 7 días.</p>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Ventas concretadas</div>
+          <div class="stat-value" id="stat-ventas">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Ingresos (USD)</div>
+          <div class="stat-value" id="stat-ingresos">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Clientes nuevos</div>
+          <div class="stat-value" id="stat-clientes">—</div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-bars" id="chart-bars"></div>
+      </div>
+    </div>
+
+    <div class="view" id="view-ventas">
       <h1>Ventas</h1>
       <p class="sub">Confirmá el pago y otorgá el acceso al cliente.</p>
       <table>
@@ -155,6 +199,40 @@
   </div>
 </div>
 
+<div class="overlay" id="clases-overlay">
+  <div class="modal" style="max-width:520px;">
+    <h3 id="clases-titulo">Contenido del curso</h3>
+    <div id="lista-modulos" style="margin:14px 0; max-height:320px; overflow-y:auto;"></div>
+    <div style="border-top:1px solid var(--line); padding-top:14px;">
+      <label>Nuevo módulo</label>
+      <input type="text" id="modulo-nombre" placeholder="Ej: Teoría, Práctica">
+      <button class="btn btn-outline" style="width:100%; margin-top:8px;" onclick="agregarModulo()">+ Agregar módulo</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" style="flex:1;" onclick="cerrarClases()">Cerrar</button>
+    </div>
+    <p class="msg" id="clases-msg"></p>
+  </div>
+</div>
+
+<div class="overlay" id="clase-form-overlay">
+  <div class="modal" style="max-width:380px;">
+    <h3>Nueva clase</h3>
+    <input type="hidden" id="clase-modulo-id">
+    <label>Título</label>
+    <input type="text" id="clase-titulo" placeholder="Título de la clase">
+    <label>ID de video en Bunny Stream</label>
+    <input type="text" id="clase-video" placeholder="Opcional">
+    <label>Duración (minutos)</label>
+    <input type="number" id="clase-duracion" placeholder="Opcional">
+    <div class="modal-actions">
+      <button class="btn" style="flex:1;" onclick="agregarClase()">Agregar</button>
+      <button class="btn btn-outline" style="flex:1;" onclick="cerrarFormClase()">Cancelar</button>
+    </div>
+    <p class="msg" id="clase-form-msg"></p>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   const SUPABASE_URL = 'https://xksollhvloypspknalwq.supabase.co';
@@ -177,6 +255,7 @@
     }
     document.getElementById('login-box').style.display = 'none';
     document.getElementById('layout').style.display = 'grid';
+    cargarInicio();
     cargarOrdenes();
     cargarProductos();
     cargarClientes();
@@ -192,6 +271,41 @@
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + nombre).classList.add('active');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.toggle('active', a.dataset.view === nombre));
+  }
+
+  // --- Inicio (dashboard) ---
+  async function cargarInicio(){
+    const desde = new Date();
+    desde.setDate(desde.getDate() - 6);
+    desde.setHours(0,0,0,0);
+
+    const { data: ordenes } = await db.from('ordenes').select('monto,estado,created_at').gte('created_at', desde.toISOString());
+    const { data: clientesNuevos } = await db.from('clientes').select('id').gte('created_at', desde.toISOString());
+
+    const pagadas = (ordenes || []).filter(o => o.estado === 'pagado' || o.estado === 'entregado');
+    const ingresos = pagadas.reduce((sum, o) => sum + Number(o.monto), 0);
+
+    document.getElementById('stat-ventas').textContent = pagadas.length;
+    document.getElementById('stat-ingresos').textContent = 'USD ' + ingresos.toFixed(0);
+    document.getElementById('stat-clientes').textContent = (clientesNuevos || []).length;
+
+    const dias = [];
+    for (let i = 6; i >= 0; i--){
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dias.push(d);
+    }
+    const conteos = dias.map(d => {
+      const clave = d.toDateString();
+      return pagadas.filter(o => new Date(o.created_at).toDateString() === clave).length;
+    });
+    const max = Math.max(1, ...conteos);
+    const cont = document.getElementById('chart-bars');
+    cont.innerHTML = dias.map((d,i) => `
+      <div class="chart-col">
+        <div class="chart-bar" style="height:${(conteos[i]/max*140) || 3}px;" title="${conteos[i]} ventas"></div>
+        <div class="chart-day">${d.toLocaleDateString('es-VE',{weekday:'short'})}</div>
+      </div>`).join('');
   }
 
   function filaOrdenHTML(o){
@@ -225,6 +339,9 @@
   const TIPO_LABEL = { curso:'Curso', digital:'Digital', fisico:'Físico' };
 
   function filaProductoHTML(p){
+    const btnClases = p.tipo === 'curso'
+      ? `<button class="btn btn-outline" onclick="abrirClases('${p.id}','${p.nombre.replace(/'/g,"")}')">Clases</button>`
+      : '';
     return `<tr class="${p.activo ? '' : 'inactivo'}">
       <td><span class="tipo-tag tipo-${p.tipo}">${TIPO_LABEL[p.tipo]}</span></td>
       <td>${p.nombre}</td>
@@ -232,6 +349,7 @@
       <td>${p.sku || '—'}</td>
       <td>${p.activo ? 'Visible' : 'Oculto'}</td>
       <td>
+        ${btnClases}
         <button class="btn btn-outline" onclick='editarProducto(${JSON.stringify(p)})'>Editar</button>
         <button class="btn btn-danger" onclick="eliminarProducto('${p.id}')">Eliminar</button>
       </td>
@@ -321,6 +439,115 @@
     if (error || !data || data.length === 0){ tbody.innerHTML=''; empty.style.display='block'; return; }
     empty.style.display = 'none';
     tbody.innerHTML = data.map(filaClienteHTML).join('');
+  }
+
+  // --- Módulos y clases dentro de un curso ---
+  let cursoActualId = null;
+
+  async function abrirClases(cursoId, nombreCurso){
+    cursoActualId = cursoId;
+    document.getElementById('clases-titulo').textContent = 'Contenido · ' + nombreCurso;
+    document.getElementById('modulo-nombre').value = '';
+    document.getElementById('clases-msg').textContent = '';
+    document.getElementById('clases-overlay').style.display = 'flex';
+    await listarModulos();
+  }
+
+  function cerrarClases(){
+    document.getElementById('clases-overlay').style.display = 'none';
+    cursoActualId = null;
+  }
+
+  async function listarModulos(){
+    const { data: modulos, error } = await db.from('cursos_modulos').select('*').eq('curso_id', cursoActualId).order('orden');
+    const cont = document.getElementById('lista-modulos');
+    if (error || !modulos || modulos.length === 0){
+      cont.innerHTML = '<p class="empty">Todavía no hay módulos. Agregá el primero abajo (ej: "Teoría").</p>';
+      return;
+    }
+
+    const { data: clases } = await db.from('cursos_clases').select('*').in('modulo_id', modulos.map(m => m.id)).order('orden');
+
+    cont.innerHTML = modulos.map(m => {
+      const clasesDelModulo = (clases || []).filter(c => c.modulo_id === m.id);
+      const filas = clasesDelModulo.map((c,i) => `
+        <div class="clase-item">
+          <span><span class="num">${i+1}.</span>${c.titulo}${c.duracion_segundos ? ' · ' + Math.round(c.duracion_segundos/60) + ' min' : ''}</span>
+          <button class="btn btn-danger btn-tiny" onclick="eliminarClase('${c.id}')">Eliminar</button>
+        </div>`).join('') || '<p class="empty" style="padding:4px 0;">Sin clases todavía.</p>';
+
+      return `<div class="modulo-block">
+        <div class="modulo-head">
+          <h4>${m.nombre}</h4>
+          <div>
+            <button class="btn btn-outline btn-tiny" onclick="abrirFormClase('${m.id}')">+ Clase</button>
+            <button class="btn btn-danger btn-tiny" onclick="eliminarModulo('${m.id}')">Eliminar módulo</button>
+          </div>
+        </div>
+        <div class="modulo-clases">${filas}</div>
+      </div>`;
+    }).join('');
+  }
+
+  async function agregarModulo(){
+    const nombre = document.getElementById('modulo-nombre').value.trim();
+    const msg = document.getElementById('clases-msg');
+    if (!nombre){ msg.textContent = 'Ponele un nombre al módulo.'; return; }
+
+    const { count } = await db.from('cursos_modulos').select('id', { count:'exact', head:true }).eq('curso_id', cursoActualId);
+    const { error } = await db.from('cursos_modulos').insert({ curso_id: cursoActualId, nombre, orden: (count || 0) + 1 });
+    if (error){ msg.textContent = 'Error: ' + error.message; return; }
+
+    document.getElementById('modulo-nombre').value = '';
+    msg.textContent = '';
+    listarModulos();
+  }
+
+  async function eliminarModulo(id){
+    if (!confirm('¿Eliminar este módulo y todas sus clases?')) return;
+    await db.from('cursos_modulos').delete().eq('id', id);
+    listarModulos();
+  }
+
+  function abrirFormClase(moduloId){
+    document.getElementById('clase-modulo-id').value = moduloId;
+    document.getElementById('clase-titulo').value = '';
+    document.getElementById('clase-video').value = '';
+    document.getElementById('clase-duracion').value = '';
+    document.getElementById('clase-form-msg').textContent = '';
+    document.getElementById('clase-form-overlay').style.display = 'flex';
+  }
+
+  function cerrarFormClase(){ document.getElementById('clase-form-overlay').style.display = 'none'; }
+
+  async function agregarClase(){
+    const moduloId = document.getElementById('clase-modulo-id').value;
+    const titulo = document.getElementById('clase-titulo').value.trim();
+    const bunny_video_id = document.getElementById('clase-video').value.trim();
+    const minutos = parseFloat(document.getElementById('clase-duracion').value);
+    const msg = document.getElementById('clase-form-msg');
+    if (!titulo){ msg.textContent = 'Ponele un título a la clase.'; return; }
+
+    const { count } = await db.from('cursos_clases').select('id', { count:'exact', head:true }).eq('modulo_id', moduloId);
+
+    const { error } = await db.from('cursos_clases').insert({
+      curso_id: cursoActualId,
+      modulo_id: moduloId,
+      titulo,
+      bunny_video_id: bunny_video_id || null,
+      duracion_segundos: isNaN(minutos) ? null : Math.round(minutos * 60),
+      orden: (count || 0) + 1
+    });
+    if (error){ msg.textContent = 'Error: ' + error.message; return; }
+
+    cerrarFormClase();
+    listarModulos();
+  }
+
+  async function eliminarClase(id){
+    if (!confirm('¿Eliminar esta clase?')) return;
+    await db.from('cursos_clases').delete().eq('id', id);
+    listarModulos();
   }
 </script>
 </body>
