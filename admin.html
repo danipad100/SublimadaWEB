@@ -106,6 +106,7 @@
     <nav>
       <a data-view="inicio" class="active" onclick="mostrarVista('inicio')">Inicio</a>
       <a data-view="ventas" onclick="mostrarVista('ventas')">Ventas</a>
+      <a data-view="cursos" onclick="mostrarVista('cursos')">Cursos</a>
       <a data-view="productos" onclick="mostrarVista('productos')">Productos</a>
       <a data-view="clientes" onclick="mostrarVista('clientes')">Clientes</a>
     </nav>
@@ -145,11 +146,26 @@
       <p class="empty" id="empty-ordenes" style="display:none;">Todavía no hay ventas registradas.</p>
     </div>
 
+    <div class="view" id="view-cursos">
+      <div class="toolbar">
+        <div>
+          <h1 style="margin-bottom:0;">Cursos</h1>
+          <p class="sub" style="margin-bottom:0;">Gestioná tus cursos online y su contenido.</p>
+        </div>
+        <button class="btn" onclick="abrirModalProducto('curso')">+ Nuevo curso</button>
+      </div>
+      <table>
+        <thead><tr><th>Nombre</th><th>Precio</th><th>SKU</th><th>Estado</th><th></th></tr></thead>
+        <tbody id="tabla-cursos"></tbody>
+      </table>
+      <p class="empty" id="empty-cursos" style="display:none;">Todavía no hay cursos cargados.</p>
+    </div>
+
     <div class="view" id="view-productos">
       <div class="toolbar">
         <div>
           <h1 style="margin-bottom:0;">Productos</h1>
-          <p class="sub" style="margin-bottom:0;">Cursos, digitales y físicos del catálogo.</p>
+          <p class="sub" style="margin-bottom:0;">Digitales y físicos del catálogo.</p>
         </div>
         <button class="btn" onclick="abrirModalProducto()">+ Nuevo producto</button>
       </div>
@@ -257,6 +273,7 @@
     document.getElementById('layout').style.display = 'grid';
     cargarInicio();
     cargarOrdenes();
+    cargarCursos();
     cargarProductos();
     cargarClientes();
   }
@@ -338,10 +355,30 @@
 
   const TIPO_LABEL = { curso:'Curso', digital:'Digital', fisico:'Físico' };
 
+  function filaCursoHTML(p){
+    return `<tr class="${p.activo ? '' : 'inactivo'}">
+      <td>${p.nombre}</td>
+      <td>USD ${Number(p.precio).toFixed(0)}</td>
+      <td>${p.sku || '—'}</td>
+      <td>${p.activo ? 'Visible' : 'Oculto'}</td>
+      <td>
+        <button class="btn btn-outline" onclick="abrirClases('${p.id}','${p.nombre.replace(/'/g,"")}')">Clases</button>
+        <button class="btn btn-outline" onclick='editarProducto(${JSON.stringify(p)})'>Editar</button>
+        <button class="btn btn-danger" onclick="eliminarProducto('${p.id}')">Eliminar</button>
+      </td>
+    </tr>`;
+  }
+
+  async function cargarCursos(){
+    const { data, error } = await db.from('productos').select('*').eq('tipo','curso').order('created_at', { ascending:false });
+    const tbody = document.getElementById('tabla-cursos');
+    const empty = document.getElementById('empty-cursos');
+    if (error || !data || data.length === 0){ tbody.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display = 'none';
+    tbody.innerHTML = data.map(filaCursoHTML).join('');
+  }
+
   function filaProductoHTML(p){
-    const btnClases = p.tipo === 'curso'
-      ? `<button class="btn btn-outline" onclick="abrirClases('${p.id}','${p.nombre.replace(/'/g,"")}')">Clases</button>`
-      : '';
     return `<tr class="${p.activo ? '' : 'inactivo'}">
       <td><span class="tipo-tag tipo-${p.tipo}">${TIPO_LABEL[p.tipo]}</span></td>
       <td>${p.nombre}</td>
@@ -349,7 +386,6 @@
       <td>${p.sku || '—'}</td>
       <td>${p.activo ? 'Visible' : 'Oculto'}</td>
       <td>
-        ${btnClases}
         <button class="btn btn-outline" onclick='editarProducto(${JSON.stringify(p)})'>Editar</button>
         <button class="btn btn-danger" onclick="eliminarProducto('${p.id}')">Eliminar</button>
       </td>
@@ -357,7 +393,7 @@
   }
 
   async function cargarProductos(){
-    const { data, error } = await db.from('productos').select('*').order('created_at', { ascending:false });
+    const { data, error } = await db.from('productos').select('*').neq('tipo','curso').order('created_at', { ascending:false });
     const tbody = document.getElementById('tabla-productos');
     const empty = document.getElementById('empty-productos');
     if (error || !data || data.length === 0){ tbody.innerHTML=''; empty.style.display='block'; return; }
@@ -365,10 +401,11 @@
     tbody.innerHTML = data.map(filaProductoHTML).join('');
   }
 
-  function abrirModalProducto(){
-    document.getElementById('modal-titulo').textContent = 'Nuevo producto';
+  function abrirModalProducto(tipoForzado){
+    document.getElementById('modal-titulo').textContent = tipoForzado === 'curso' ? 'Nuevo curso' : 'Nuevo producto';
     document.getElementById('prod-id').value = '';
-    document.getElementById('prod-tipo').value = 'curso';
+    document.getElementById('prod-tipo').value = tipoForzado || 'digital';
+    document.getElementById('prod-tipo').disabled = !!tipoForzado;
     document.getElementById('prod-nombre').value = '';
     document.getElementById('prod-descripcion').value = '';
     document.getElementById('prod-precio').value = '';
@@ -379,9 +416,10 @@
   }
 
   function editarProducto(p){
-    document.getElementById('modal-titulo').textContent = 'Editar producto';
+    document.getElementById('modal-titulo').textContent = p.tipo === 'curso' ? 'Editar curso' : 'Editar producto';
     document.getElementById('prod-id').value = p.id;
     document.getElementById('prod-tipo').value = p.tipo;
+    document.getElementById('prod-tipo').disabled = p.tipo === 'curso';
     document.getElementById('prod-nombre').value = p.nombre;
     document.getElementById('prod-descripcion').value = p.descripcion || '';
     document.getElementById('prod-precio').value = p.precio;
@@ -391,7 +429,10 @@
     document.getElementById('modal-overlay').style.display = 'flex';
   }
 
-  function cerrarModalProducto(){ document.getElementById('modal-overlay').style.display = 'none'; }
+  function cerrarModalProducto(){
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.getElementById('prod-tipo').disabled = false;
+  }
 
   async function guardarProducto(){
     const id = document.getElementById('prod-id').value;
@@ -413,12 +454,14 @@
     if (error){ msg.textContent = 'Error al guardar: ' + error.message; return; }
     cerrarModalProducto();
     cargarProductos();
+    cargarCursos();
   }
 
   async function eliminarProducto(id){
     if (!confirm('¿Eliminar este producto? Esta acción no se puede deshacer.')) return;
     await db.from('productos').delete().eq('id', id);
     cargarProductos();
+    cargarCursos();
   }
 
   function filaClienteHTML(c){
